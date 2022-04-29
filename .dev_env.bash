@@ -34,7 +34,6 @@ python -m pip install -U pre-commit pre-commit-hooks
 python -m pip install -U autopep8 flake8 isort pylint yapf pydocstyle black
 python -m pip install -U jupyter jupyter_nbextensions_configurator ipyparallel
 python -m pip install -U jupyter_nbextensions_configurator jupyterlab_code_formatter
-python -m pip install -U jupyterlab-git==0.36.0
 
 python -m pip install -U jupyterlab
 python -m pip install -U jupyterlab_code_formatter
@@ -44,6 +43,8 @@ python -m pip install -U jupyterlab-spellchecker
 python -m pip install -U jupyterlab-git
 python -m pip install -U aquirdturtle-collapsible-headings
 python -m pip install -U nbdime
+
+python -m pip install -U jupyterlab-git==0.36.0
 
 jupyter labextension install jupyterlab_onedarkpro
 jupyter server extension enable --py jupyterlab_git
