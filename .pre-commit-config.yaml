@@ -1,0 +1,47 @@
+fail_fast: false
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.2.0
+    hooks:
+    -   id: check-yaml
+        args: [--allow-multiple-documents]
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+    -   id: check-added-large-files
+        args: [ --maxkb=10000 ]
+    -   id: debug-statements
+    -   id: check-executables-have-shebangs
+    -   id: check-shebang-scripts-are-executable
+        language_version: python3
+
+-   repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+    -   id: black
+
+-   repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+    -   id: flake8
+        language_version: python3
+
+-   repo: https://github.com/asottile/reorder_python_imports
+    rev: v3.0.1
+    hooks:
+    -   id: reorder-python-imports
+        args: []
+
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v2.32.0
+    hooks:
+    -   id: pyupgrade
+        args: [--py36-plus]
+
+- repo: https://github.com/pocc/pre-commit-hooks
+  rev: v1.3.5
+  hooks:
+  - id: clang-tidy
+    args:
+      - --extra-arg=-I./.venv/lib/python3.9/site-packages/pybind11/include/
+      - --extra-arg=-I/usr/include/python3.9/
+  - id: cppcheck

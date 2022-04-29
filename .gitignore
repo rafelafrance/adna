@@ -1,0 +1,48 @@
+# Editors
+.ropeproject/
+.spyproject/
+.vscode/
+.idea/
+.~*
+.virtual_documents/
+*journal
+
+# Linters
+.pylintrc
+.mypy.ini
+.mypy_cache/
+.lsp_symlink
+
+# Test
+.coverage
+.cache
+.hypothesis
+.pytest_cache/
+
+# Python
+*.pyc
+*.swp
+__pycache__
+.ipynb_checkpoints/
+
+# Environment
+.venv/
+
+# data
+output/
+data/
+
+# Temp files
+temp/
+junk*
+runs/
+
+# Experiments
+pilot/
+scratch/
+old/
+experiments/
+
+# Notes
+notes/
+papers/
