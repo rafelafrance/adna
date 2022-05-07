@@ -1,4 +1,5 @@
 biopython
+cython
 gensim
 jupyter
 numpy
