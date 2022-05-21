@@ -1,6 +1,4 @@
 biopython
-cython
-gensim
 jupyter
 numpy
 pandas
@@ -10,7 +8,4 @@ tokenizers
 tqdm
 transformers
 
-torch
-torchvision
-
-click==7.1.2
+#torch

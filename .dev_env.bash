@@ -16,7 +16,7 @@ python -m pip install --upgrade pip setuptools wheel
 # ##############################################################################
 # I want to use the GPU when possible.
 
-# pip3 install -U torch torchvision --extra-index-url https://download.pytorch.org/whl/cu113
+ pip3 install -U torch --extra-index-url https://download.pytorch.org/whl/cu113
 
 # ##############################################################################
 # Install normal requirements
