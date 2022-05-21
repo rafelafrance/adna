@@ -10,10 +10,21 @@ DATA_DIR = ROOT_DIR / "data"
 # ######### Model Params #################################################
 PREFIX = 'UF46992'
 
-VOCAB_SIZE = 5000
+VOCAB_SIZE = 4096
 MIN_FREQ = 2
-SEQ_LENGTH = 80
+MAX_LENGTH = 80  # Pad all sequences to this length
 VECTOR_SIZE = 128  # Keeping things small for now
+
+# #########################################################################
+# Special tokens
+
+BOS = "<s>"  # Beginning of sequence
+EOS = "</s>"  # End of sequence
+PAD = "<pad>"  # Sequence padding to get to a uniform SEQ_LENGTH
+UNK = "<unk>"  # Unknown token -- Currently unused
+MASK = "<mask>"  # Mask a token -- Currently unused
+
+SPECIAL_TOKENS = [BOS, PAD, EOS, UNK, MASK]
 
 # #########################################################################
 SUB_DIR = DATA_DIR / PREFIX
