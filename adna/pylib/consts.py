@@ -30,5 +30,3 @@ SPECIAL_TOKENS = [BOS, PAD, EOS, UNK, MASK]
 SUB_DIR = DATA_DIR / PREFIX
 SQL = SUB_DIR / f'{PREFIX}.sqlite'
 
-# select *, row_number() over win as idx
-# from seqs window win as (order by random()) limit 1000000
