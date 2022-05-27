@@ -2,6 +2,7 @@ import sqlite3
 from collections import namedtuple
 
 import torch
+from sklearn.utils import class_weight
 from torch.utils import data
 
 from . import consts
@@ -20,7 +21,7 @@ class ADnaDataset(data.Dataset):
         self.check_split()
 
         self.tokenizer = tokenizer
-        self.data = self.read_data()
+        self.records = self.read_data()
 
     def check_split(self):
         with sqlite3.connect(consts.SQL) as cxn:
@@ -38,18 +39,19 @@ class ADnaDataset(data.Dataset):
         return dataset
 
     def __len__(self):
-        return len(self.data)
+        return len(self.records)
 
     def __getitem__(self, idx):
-        record = self.data[idx]
+        record = self.records[idx]
         encoded = self.tokenizer.encode_plus(
             record.seq, padding="max_length", max_length=consts.MAX_LENGTH
         )
         encoded["label"] = torch.tensor(record.label)
         return encoded
 
-    def pos_weight(self):
-        """Calculate the weight for the positive cases of the trait."""
-        pos = sum(s.label for s in self.data)
-        pos_wt = (len(self) - pos) / pos if pos > 0.0 else 1.0
-        return [pos_wt]
+    def weights(self):
+        """Calculate the weight for each label."""
+        y = [r.label for r in self.records]
+        classes = sorted(set(y))
+        wt = class_weight.compute_class_weight('balanced', classes=classes, y=y)
+        return wt
