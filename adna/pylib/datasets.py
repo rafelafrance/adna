@@ -1,14 +1,13 @@
 import sqlite3
+from collections import namedtuple
 
 import torch
 from torch.utils import data
 
 from . import consts
 
-# select *, row_number() over win as idx
-# from seqs
-# window win as (order by random())
-# limit ?
+
+Record = namedtuple("Record", "seq label rev")
 
 
 class ADnaDataset(data.Dataset):
@@ -35,15 +34,22 @@ class ADnaDataset(data.Dataset):
     def read_data(self):
         sql = "select seq, label, rev from seqs where split = ? order by random()"
         with sqlite3.connect(consts.SQL) as cxn:
-            dataset = [r for r in cxn.execute(sql, (self.split,))]
+            dataset = [Record(*r) for r in cxn.execute(sql, (self.split,))]
         return dataset
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
+        record = self.data[idx]
         encoded = self.tokenizer.encode_plus(
-            self.data[idx][0], padding="max_length", max_length=consts.MAX_LENGTH
+            record.seq, padding="max_length", max_length=consts.MAX_LENGTH
         )
-        encoded["label"] = torch.tensor(self.data[idx][1])
+        encoded["label"] = torch.tensor(record.label)
         return encoded
+
+    def pos_weight(self):
+        """Calculate the weight for the positive cases of the trait."""
+        pos = sum(s.label for s in self.data)
+        pos_wt = (len(self) - pos) / pos if pos > 0.0 else 1.0
+        return [pos_wt]
