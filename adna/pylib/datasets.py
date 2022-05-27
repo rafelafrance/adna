@@ -21,8 +21,7 @@ class ADnaDataset(data.Dataset):
         self.check_split()
 
         self.tokenizer = tokenizer
-
-        self.data = []
+        self.data = self.read_data()
 
     def check_split(self):
         with sqlite3.connect(consts.SQL) as cxn:
@@ -36,7 +35,8 @@ class ADnaDataset(data.Dataset):
     def read_data(self):
         sql = "select seq, label, rev from seqs where split = ? order by random()"
         with sqlite3.connect(consts.SQL) as cxn:
-            self.data = [r for r in cxn.execute(sql, (self.split,))]
+            dataset = [r for r in cxn.execute(sql, (self.split,))]
+        return dataset
 
     def __len__(self):
         return len(self.data)
