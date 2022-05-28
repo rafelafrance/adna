@@ -7,12 +7,16 @@ ROOT_DIR = Path(".." if IS_SUBDIR else ".")
 
 DATA_DIR = ROOT_DIR / "data"
 
+# ######### Data Augmentation Params #####################################
+REV_COMP_RATE = 0.2
+TO_N_RATE = 0.02
+
 # ######### Model Params #################################################
 PREFIX = 'UF46992'
 
 VOCAB_SIZE = 4096
 MIN_FREQ = 2
-MAX_LENGTH = 80  # Pad all sequences to this length
+MAX_LENGTH = 100  # Pad/truncate all sequences to this tokenized length
 VECTOR_SIZE = 128  # Keeping things small for now
 
 # #########################################################################
