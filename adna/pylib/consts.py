@@ -12,7 +12,7 @@ REV_COMP_RATE = 0.2
 TO_N_RATE = 0.02
 
 # ######### Model Params #################################################
-PREFIX = 'UF46992'
+PREFIX = "UF46992"
 
 VOCAB_SIZE = 4096
 MIN_FREQ = 2
@@ -31,6 +31,5 @@ MASK = "<mask>"  # Mask a token -- Currently unused
 SPECIAL_TOKENS = [BOS, PAD, EOS, UNK, MASK]
 
 # #########################################################################
-SUB_DIR = DATA_DIR / PREFIX
-SQL = SUB_DIR / f'{PREFIX}.sqlite'
-
+MT_DIR = DATA_DIR / PREFIX
+SQL = MT_DIR / f"{PREFIX}.sqlite"
