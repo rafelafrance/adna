@@ -9,7 +9,7 @@ from torch.utils import data
 from . import consts
 
 
-def read_dataset(split="", limit=-1, db=None):
+def read_dataset(split="", *, limit=-1, db=None):
     """
     Args:
         split: "train", "val", "test". "" == all splits
@@ -43,7 +43,7 @@ def read_dataset(split="", limit=-1, db=None):
 
 class ADnaDataset(data.Dataset):
     def __init__(
-        self, split="", tokenizer=None, rev_comp_rate=0.0, to_n_rate=0.0, limit=-1
+        self, split="", tokenizer=None, *, rev_comp_rate=0.0, to_n_rate=0.0, limit=-1
     ):
         """
         split         = "train", "val", "test" split from the database
@@ -62,7 +62,7 @@ class ADnaDataset(data.Dataset):
 
         self.tokenizer = tokenizer
 
-        self.seqs, self.labels = read_dataset(self.split, self.limit)
+        self.seqs, self.labels = read_dataset(self.split, limit=self.limit)
 
         self.weights = self.get_weights(self.labels)
 

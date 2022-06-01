@@ -7,10 +7,6 @@ ROOT_DIR = Path(".." if IS_SUBDIR else ".")
 
 DATA_DIR = ROOT_DIR / "data"
 
-# ######### Data Augmentation Params #####################################
-REV_COMP_RATE = 0.2
-TO_N_RATE = 0.02
-
 # ######### Model Params #################################################
 PREFIX = "UF46992"
 
