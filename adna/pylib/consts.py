@@ -1,4 +1,3 @@
-"""Literals used in the system."""
 from pathlib import Path
 
 # #########################################################################
@@ -11,9 +10,7 @@ DATA_DIR = ROOT_DIR / "data"
 PREFIX = "UF46992"
 
 VOCAB_SIZE = 4096
-MIN_FREQ = 2
 MAX_LENGTH = 100  # Pad/truncate all sequences to this tokenized length
-VECTOR_SIZE = 128  # Keeping things small for now
 
 # #########################################################################
 # Special tokens

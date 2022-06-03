@@ -41,7 +41,26 @@ def read_dataset(split="", *, limit=-1, db=None):
     return seqs, labels
 
 
-class ADnaDataset(data.Dataset):
+def rev_comp(seq, rate=1.0):
+    """Randomly convert a sequence to its reverse complement."""
+    if random.random() < rate:
+        seq = str(Seq(seq).reverse_complement())
+    return seq
+
+
+def to_n(seq, rate=0.0):
+    """Randomly convert bases to N."""
+    bases = []
+    for base in seq:
+        if random.random() < rate:
+            bases.append("N")
+        else:
+            bases.append(base)
+    seq = "".join(bases)
+    return seq
+
+
+class BPEDataset(data.Dataset):
     def __init__(
         self, split="", tokenizer=None, *, rev_comp_rate=0.0, to_n_rate=0.0, limit=-1
     ):
@@ -52,6 +71,7 @@ class ADnaDataset(data.Dataset):
                         None = return raw sequence and label
         rev_comp_rate = convert sequences to its reverse complement at this random rate
         to_n_rate     = convert bases in a sequence to N at this random rate
+        limit         = limit the dataset to this many records, -1 = all records
         """
         self.split = split
         self.check_split()
@@ -64,8 +84,6 @@ class ADnaDataset(data.Dataset):
 
         self.seqs, self.labels = read_dataset(self.split, limit=self.limit)
 
-        self.weights = self.get_weights(self.labels)
-
     def __len__(self):
         return len(self.seqs)
 
@@ -73,8 +91,8 @@ class ADnaDataset(data.Dataset):
         seq = self.seqs[idx]
         label = self.labels[idx]
 
-        seq = self.rev_comp(seq)
-        seq = self.to_n(seq)
+        seq = rev_comp(seq, self.rev_comp_rate)
+        seq = to_n(seq, self.to_n_rate) if self.to_n_rate else seq
 
         if not self.tokenizer:
             return seq
@@ -85,28 +103,12 @@ class ADnaDataset(data.Dataset):
         encoded["label"] = torch.tensor(label)
         return encoded
 
-    def rev_comp(self, seq):
-        if random.random() < self.rev_comp_rate:
-            seq = str(Seq(seq).reverse_complement())
-        return seq
-
-    def to_n(self, seq):
-        """Randomly convert bases to N."""
-        if self.to_n_rate:
-            bases = []
-            for base in seq:
-                if random.random() < self.to_n_rate:
-                    bases.append("N")
-                else:
-                    bases.append(base)
-            seq = "".join(bases)
-        return seq
-
-    @staticmethod
-    def get_weights(labels):
+    def get_weights(self):
         """Calculate the weight for each label."""
-        classes = sorted(set(labels))
-        wt = class_weight.compute_class_weight("balanced", classes=classes, y=labels)
+        classes = sorted(set(self.labels))
+        wt = class_weight.compute_class_weight(
+            "balanced", classes=classes, y=self.labels
+        )
         return wt
 
     def check_split(self):
