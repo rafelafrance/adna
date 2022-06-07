@@ -1,63 +1,9 @@
-import random
-import sqlite3
-
 import torch
-from Bio.Seq import Seq
 from sklearn.utils import class_weight
 from torch.utils import data
 
 from . import consts
-
-
-def read_dataset(split="", *, limit=-1, db=None):
-    """
-    Args:
-        split: "train", "val", "test". "" == all splits
-        limit: Limit the dataset to this many records, -1 = all
-        db:    Path to the database
-    Returns:
-        seqs, labels
-        a list of sequences & a list of their labels
-    """
-    db = db if db else consts.SQL
-    sql = "select seq, label, rev from seqs"
-    args = []
-
-    if split:
-        sql += " where split = ? order by random()"
-        args.append(split)
-
-    if limit > 0:
-        sql += " limit ?"
-        args.append(limit)
-
-    with sqlite3.connect(db) as cxn:
-        seqs, labels = [], []
-        for rec in cxn.execute(sql, args):
-            seqs.append(rec[0])
-            label = rec[1] + rec[2]
-            labels.append(label)
-
-    return seqs, labels
-
-
-def rev_comp(seq, rate=1.0):
-    """Randomly convert a sequence to its reverse complement."""
-    if random.random() < rate:
-        seq = str(Seq(seq).reverse_complement())
-    return seq
-
-
-def to_n(seq, rate=0.0):
-    """Randomly convert bases to N."""
-    bases = []
-    for base in seq:
-        if random.random() < rate:
-            bases.append("N")
-        else:
-            bases.append(base)
-    seq = "".join(bases)
-    return seq
+from . import dataset_utils as du
 
 
 class BPEDataset(data.Dataset):
@@ -73,51 +19,31 @@ class BPEDataset(data.Dataset):
         to_n_rate     = convert bases in a sequence to N at this random rate
         limit         = limit the dataset to this many records, -1 = all records
         """
-        self.split = split
-        self.check_split()
-
+        du.check_split(split)
+        self.tokenizer = tokenizer
         self.rev_comp_rate = rev_comp_rate
         self.to_n_rate = to_n_rate
-        self.limit = limit
-
-        self.tokenizer = tokenizer
-
-        self.seqs, self.labels = read_dataset(self.split, limit=self.limit)
+        self.records = du.read_records(split, limit=limit)
 
     def __len__(self):
-        return len(self.seqs)
+        return len(self.records)
 
     def __getitem__(self, idx):
-        seq = self.seqs[idx]
-        label = self.labels[idx]
-
-        seq = rev_comp(seq, self.rev_comp_rate)
-        seq = to_n(seq, self.to_n_rate) if self.to_n_rate else seq
-
-        if not self.tokenizer:
-            return seq
+        record = self.records[idx]
+        seq = record.seq
+        seq = du.rev_comp(seq, self.rev_comp_rate)
+        seq = du.to_n(seq, self.to_n_rate) if self.to_n_rate else seq
 
         encoded = self.tokenizer.encode_plus(
             seq, padding="max_length", max_length=consts.MAX_LENGTH
         )
-        encoded["label"] = torch.tensor(label)
+        encoded["label"] = torch.tensor(record.label)
         return encoded
 
-    def get_weights(self):
+    @property
+    def weights(self):
         """Calculate the weight for each label."""
-        classes = sorted(set(self.labels))
-        wt = class_weight.compute_class_weight(
-            "balanced", classes=classes, y=self.labels
-        )
+        labels = [r.label for r in self.records]
+        classes = sorted(set(labels))
+        wt = class_weight.compute_class_weight("balanced", classes=classes, y=labels)
         return wt
-
-    def check_split(self):
-        if not self.split:
-            return
-        with sqlite3.connect(consts.SQL) as cxn:
-            rows = cxn.execute("select distinct split from seqs")
-        splits = [r[0] for r in rows]
-        if self.split not in splits:
-            raise ValueError(
-                f"Split {self.split} is not in the database.\nOptions are: {splits}"
-            )
