@@ -26,8 +26,15 @@ class BalancedDataset(data.Dataset):
 
         records = du.read_records(split, limit=limit)
         records = self.rev_comp_all(records)
-        pos_records, neg_records = self.pos_neg_records(records)
-        records = pos_records + random.sample(neg_records, k=len(pos_records))
+        self.pos_records, self.neg_records = self.pos_neg_records(records)
+        self.sample_size = min(len(self.pos_records), len(self.neg_records))
+        self.records = []
+        self.sample()
+
+    def sample(self):
+        """Resample records at the start of every epoch."""
+        records = random.sample(self.pos_records, k=self.sample_size)
+        records += random.sample(self.neg_records, k=self.sample_size)
         self.records = random.sample(records, k=len(records))
 
     def __len__(self):
