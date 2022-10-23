@@ -4,6 +4,4 @@
 
 Utilities for cleaning and working with ancient DNA.
 
-## Project Summary
-
-## Setup
+Archived due to a lack of interest.
